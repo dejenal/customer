@@ -67,9 +67,19 @@
   <ItemGroup>
     <Build Include="dbo\Tables\Projects.sql" />
     <Build Include="dbo\Views\GetProjects.sql" />
-    <Build Include="dbo\Views\GetUsers.sql" />
     <Build Include="dbo\Tables\dejen1.sql" />
     <Build Include="dbo\Tables\dejen.sql" />
     <Build Include="dbo\Tables\Address.sql" />
+    <Build Include="dbo\Tables\WorkOut.sql" />
+    <Build Include="dbo\Tables\TMP_SRCG_UnitBids.sql" />
+    <Build Include="dbo\Tables\Temp_Schema_Info.sql" />
+    <Build Include="dbo\Tables\SRCG_UnitBids.sql" />
+    <Build Include="dbo\Tables\movie_metadata1.sql" />
+    <Build Include="dbo\Tables\movie_metadata.sql" />
+    <Build Include="dbo\Tables\Dejenbackup.sql" />
+    <Build Include="dbo\Tables\CoolPeople.sql" />
+    <Build Include="dbo\Tables\contacts.sql" />
+    <Build Include="dbo\Tables\contact.sql" />
+    <Build Include="dbo\Views\newView.sql" />
   </ItemGroup>
 </Project>
