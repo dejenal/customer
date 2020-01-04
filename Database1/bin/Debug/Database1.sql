@@ -40,360 +40,69 @@ USE [$(DatabaseName)];
 
 
 GO
-IF EXISTS (SELECT 1
-           FROM   [master].[dbo].[sysdatabases]
-           WHERE  [name] = N'$(DatabaseName)')
-    BEGIN
-        ALTER DATABASE [$(DatabaseName)]
-            SET ARITHABORT ON,
-                CONCAT_NULL_YIELDS_NULL ON,
-                CURSOR_DEFAULT LOCAL 
-            WITH ROLLBACK IMMEDIATE;
-    END
+/*
+The type for column BidValue in table [dbo].[SRCG_UnitBids] is currently  DECIMAL (38, 6) NOT NULL but is being changed to  DECIMAL (18, 6) NULL. Data loss could occur.
+*/
+
+IF EXISTS (select top 1 1 from [dbo].[SRCG_UnitBids])
+    RAISERROR (N'Rows were detected. The schema update is terminating because data loss might occur.', 16, 127) WITH NOWAIT
+
+GO
+PRINT N'Dropping [dbo].[DF_SRCG_UnitBids_BidValue]...';
 
 
 GO
-IF EXISTS (SELECT 1
-           FROM   [master].[dbo].[sysdatabases]
-           WHERE  [name] = N'$(DatabaseName)')
-    BEGIN
-        ALTER DATABASE [$(DatabaseName)]
-            SET PAGE_VERIFY NONE,
-                DISABLE_BROKER 
-            WITH ROLLBACK IMMEDIATE;
-    END
+ALTER TABLE [dbo].[SRCG_UnitBids] DROP CONSTRAINT [DF_SRCG_UnitBids_BidValue];
 
 
 GO
-ALTER DATABASE [$(DatabaseName)]
-    SET TARGET_RECOVERY_TIME = 0 SECONDS 
-    WITH ROLLBACK IMMEDIATE;
+PRINT N'Starting rebuilding table [dbo].[SRCG_UnitBids]...';
 
 
 GO
-PRINT N'Creating [dbo].[Address]...';
+BEGIN TRANSACTION;
 
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 
-GO
-CREATE TABLE [dbo].[Address] (
-    [AddressID]       INT               IDENTITY (1, 1) NOT FOR REPLICATION NOT NULL,
-    [AddressLine1]    NVARCHAR (60)     NOT NULL,
-    [AddressLine2]    NVARCHAR (60)     NOT NULL,
-    [City]            NVARCHAR (31)     NOT NULL,
-    [StateProvinceID] INT               NOT NULL,
-    [PostalCod]       NVARCHAR (15)     NOT NULL,
-    [SpatialLocation] [sys].[geography] NULL,
-    [rowguid]         UNIQUEIDENTIFIER  ROWGUIDCOL NOT NULL,
-    [ModifiedDate]    DATETIME          NOT NULL,
-    CONSTRAINT [PK_Address_AddressID] PRIMARY KEY CLUSTERED ([AddressID] ASC)
-);
+SET XACT_ABORT ON;
 
-
-GO
-PRINT N'Creating [dbo].[contact]...';
-
-
-GO
-CREATE TABLE [dbo].[contact] (
-    [id]         INT           IDENTITY (1, 1) NOT NULL,
-    [first_name] VARCHAR (100) NOT NULL,
-    [last_name]  VARCHAR (100) NOT NULL,
-    [phones]     VARCHAR (500) NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[contacts]...';
-
-
-GO
-CREATE TABLE [dbo].[contacts] (
-    [id]         INT           IDENTITY (1, 1) NOT NULL,
-    [first_name] VARCHAR (100) NOT NULL,
-    [last_name]  VARCHAR (100) NOT NULL,
-    [phones]     VARCHAR (500) NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[CoolPeople]...';
-
-
-GO
-CREATE TABLE [dbo].[CoolPeople] (
-    [PersonName] VARCHAR (20) NULL,
-    [PrimaryCar] VARCHAR (20) NULL
-);
-
-
-GO
-PRINT N'Creating [dbo].[dejen]...';
-
-
-GO
-CREATE TABLE [dbo].[dejen] (
-    [id]   INT          NOT NULL,
-    [name] VARCHAR (20) NULL,
-    [flag] BIT          NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[dejen1]...';
-
-
-GO
-CREATE TABLE [dbo].[dejen1] (
-    [id]   INT          NOT NULL,
-    [name] VARCHAR (20) NULL,
-    [flag] BIT          NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[Dejenbackup]...';
-
-
-GO
-CREATE TABLE [dbo].[Dejenbackup] (
-    [id]   INT          NOT NULL,
-    [name] VARCHAR (20) NULL,
-    [flag] BIT          NULL
-);
-
-
-GO
-PRINT N'Creating [dbo].[movie_metadata]...';
-
-
-GO
-CREATE TABLE [dbo].[movie_metadata] (
-    [color]                     NVARCHAR (50)  NULL,
-    [director_name]             NVARCHAR (50)  NULL,
-    [num_critic_for_reviews]    FLOAT (53)     NULL,
-    [duration]                  FLOAT (53)     NULL,
-    [director_facebook_likes]   FLOAT (53)     NULL,
-    [actor_3_facebook_likes]    FLOAT (53)     NULL,
-    [actor_2_name]              NVARCHAR (50)  NULL,
-    [actor_1_facebook_likes]    FLOAT (53)     NULL,
-    [gross]                     FLOAT (53)     NULL,
-    [genres]                    NVARCHAR (100) NULL,
-    [actor_1_name]              NVARCHAR (50)  NULL,
-    [movie_title]               NVARCHAR (100) NULL,
-    [num_voted_users]           FLOAT (53)     NULL,
-    [cast_total_facebook_likes] FLOAT (53)     NULL,
-    [actor_3_name]              NVARCHAR (50)  NULL,
-    [facenumber_in_poster]      FLOAT (53)     NULL,
-    [plot_keywords]             NVARCHAR (150) NULL,
-    [movie_imdb_link]           NVARCHAR (100) NULL,
-    [num_user_for_reviews]      FLOAT (53)     NULL,
-    [language]                  NVARCHAR (50)  NULL,
-    [country]                   NVARCHAR (50)  NULL,
-    [content_rating]            NVARCHAR (50)  NULL,
-    [AB]                        FLOAT (53)     NULL,
-    [title_year]                FLOAT (53)     NULL,
-    [actor_2_facebook_likes]    FLOAT (53)     NULL,
-    [imdb_score]                FLOAT (53)     NULL,
-    [aspect_ratio]              FLOAT (53)     NULL,
-    [movie_facebook_likes]      FLOAT (53)     NULL,
-    [column_29]                 NVARCHAR (1)   NULL,
-    [Movie_Categorization]      NVARCHAR (50)  NULL
-);
-
-
-GO
-PRINT N'Creating [dbo].[movie_metadata1]...';
-
-
-GO
-CREATE TABLE [dbo].[movie_metadata1] (
-    [color]                     NVARCHAR (50)  NULL,
-    [director_name]             NVARCHAR (50)  NULL,
-    [num_critic_for_reviews]    FLOAT (53)     NULL,
-    [duration]                  FLOAT (53)     NULL,
-    [director_facebook_likes]   FLOAT (53)     NULL,
-    [actor_3_facebook_likes]    FLOAT (53)     NULL,
-    [actor_2_name]              NVARCHAR (50)  NULL,
-    [actor_1_facebook_likes]    FLOAT (53)     NULL,
-    [gross]                     FLOAT (53)     NULL,
-    [genres]                    NVARCHAR (100) NULL,
-    [actor_1_name]              NVARCHAR (50)  NULL,
-    [movie_title]               NVARCHAR (100) NULL,
-    [num_voted_users]           FLOAT (53)     NULL,
-    [cast_total_facebook_likes] FLOAT (53)     NULL,
-    [actor_3_name]              NVARCHAR (50)  NULL,
-    [facenumber_in_poster]      FLOAT (53)     NULL,
-    [plot_keywords]             NVARCHAR (150) NULL,
-    [movie_imdb_link]           NVARCHAR (100) NULL,
-    [num_user_for_reviews]      FLOAT (53)     NULL,
-    [language]                  NVARCHAR (50)  NULL,
-    [country]                   NVARCHAR (50)  NULL,
-    [content_rating]            NVARCHAR (50)  NULL,
-    [AB]                        FLOAT (53)     NULL,
-    [title_year]                FLOAT (53)     NULL,
-    [actor_2_facebook_likes]    FLOAT (53)     NULL,
-    [imdb_score]                FLOAT (53)     NULL,
-    [aspect_ratio]              FLOAT (53)     NULL,
-    [movie_facebook_likes]      FLOAT (53)     NULL,
-    [column_29]                 NVARCHAR (1)   NULL,
-    [Movie_Categorization]      NVARCHAR (50)  NULL
-);
-
-
-GO
-PRINT N'Creating [dbo].[Projects]...';
-
-
-GO
-CREATE TABLE [dbo].[Projects] (
-    [Id]          INT        NOT NULL,
-    [ProjectName] NCHAR (10) NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[SRCG_UnitBids]...';
-
-
-GO
-CREATE TABLE [dbo].[SRCG_UnitBids] (
+CREATE TABLE [dbo].[tmp_ms_xx_SRCG_UnitBids] (
     [BidNo]     INT             NOT NULL,
     [LotId]     INT             NOT NULL,
     [EventCode] BIGINT          NOT NULL,
     [RowId]     INT             NOT NULL,
-    [UnitBid]   DECIMAL (18, 6) NOT NULL,
-    [Volume]    DECIMAL (18, 6) NOT NULL,
-    [BidValue]  DECIMAL (38, 6) NOT NULL,
-    CONSTRAINT [PK_SRCG_UnitBids] PRIMARY KEY CLUSTERED ([BidNo] ASC, [LotId] ASC, [EventCode] ASC, [RowId] ASC)
+    [UnitBid]   DECIMAL (38, 6) NOT NULL,
+    [Volume]    DECIMAL (38, 6) NOT NULL,
+    [BidValue]  DECIMAL (18, 6) CONSTRAINT [DF_SRCG_UnitBids_BidValue] DEFAULT ((0)) NULL,
+    CONSTRAINT [tmp_ms_xx_constraint_PK_SRCG_UnitBids1] PRIMARY KEY CLUSTERED ([BidNo] ASC, [LotId] ASC, [EventCode] ASC, [RowId] ASC)
 );
 
+IF EXISTS (SELECT TOP 1 1 
+           FROM   [dbo].[SRCG_UnitBids])
+    BEGIN
+        INSERT INTO [dbo].[tmp_ms_xx_SRCG_UnitBids] ([BidNo], [LotId], [EventCode], [RowId], [UnitBid], [Volume], [BidValue])
+        SELECT   [BidNo],
+                 [LotId],
+                 [EventCode],
+                 [RowId],
+                 [UnitBid],
+                 [Volume],
+                 CAST ([BidValue] AS DECIMAL (18, 6))
+        FROM     [dbo].[SRCG_UnitBids]
+        ORDER BY [BidNo] ASC, [LotId] ASC, [EventCode] ASC, [RowId] ASC;
+    END
 
-GO
-PRINT N'Creating [dbo].[Temp_Schema_Info]...';
+DROP TABLE [dbo].[SRCG_UnitBids];
 
+EXECUTE sp_rename N'[dbo].[tmp_ms_xx_SRCG_UnitBids]', N'SRCG_UnitBids';
 
-GO
-CREATE TABLE [dbo].[Temp_Schema_Info] (
-    [TABLE_CATALOG]            NVARCHAR (128)  NULL,
-    [TABLE_SCHEMA]             NVARCHAR (128)  NULL,
-    [TABLE_NAME]               NVARCHAR (128)  NULL,
-    [COLUMN_NAME]              NVARCHAR (128)  NULL,
-    [ORDINAL_POSITION]         INT             NULL,
-    [COLUMN_DEFAULT]           NVARCHAR (4000) NULL,
-    [IS_NULLABLE]              VARCHAR (3)     NULL,
-    [DATA_TYPE]                NVARCHAR (128)  NULL,
-    [CHARACTER_MAXIMUM_LENGTH] INT             NULL,
-    [CHARACTER_OCTET_LENGTH]   INT             NULL,
-    [NUMERIC_PRECISION]        TINYINT         NULL,
-    [NUMERIC_PRECISION_RADIX]  SMALLINT        NULL,
-    [NUMERIC_SCALE]            INT             NULL,
-    [DATETIME_PRECISION]       SMALLINT        NULL,
-    [CHARACTER_SET_CATALOG]    NVARCHAR (128)  NULL,
-    [CHARACTER_SET_SCHEMA]     NVARCHAR (128)  NULL,
-    [CHARACTER_SET_NAME]       NVARCHAR (128)  NULL,
-    [COLLATION_CATALOG]        NVARCHAR (128)  NULL,
-    [COLLATION_SCHEMA]         NVARCHAR (128)  NULL,
-    [COLLATION_NAME]           NVARCHAR (128)  NULL,
-    [DOMAIN_CATALOG]           NVARCHAR (128)  NULL,
-    [DOMAIN_SCHEMA]            NVARCHAR (128)  NULL,
-    [DOMAIN_NAME]              NVARCHAR (128)  NULL
-);
+EXECUTE sp_rename N'[dbo].[tmp_ms_xx_constraint_PK_SRCG_UnitBids1]', N'PK_SRCG_UnitBids', N'OBJECT';
+
+COMMIT TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
-GO
-PRINT N'Creating [dbo].[TMP_SRCG_UnitBids]...';
-
-
-GO
-CREATE TABLE [dbo].[TMP_SRCG_UnitBids] (
-    [BidNo]             INT             NOT NULL,
-    [LotId]             INT             NOT NULL,
-    [EventCode]         BIGINT          NOT NULL,
-    [RowId]             INT             NOT NULL,
-    [UnitBid]           DECIMAL (18, 6) NOT NULL,
-    [Volume]            DECIMAL (18, 6) NOT NULL,
-    [Updated_Timestamp] BINARY (8)      NOT NULL,
-    CONSTRAINT [TMP_PK_SRCG_UnitBids] PRIMARY KEY CLUSTERED ([BidNo] ASC, [LotId] ASC, [EventCode] ASC, [RowId] ASC)
-);
-
-
-GO
-PRINT N'Creating [dbo].[WorkOut]...';
-
-
-GO
-CREATE TABLE [dbo].[WorkOut] (
-    [WorkOutID]       BIGINT           IDENTITY (1, 1) NOT NULL,
-    [TimeSheetDate]   AS               (dateadd(day, -(datepart(day, [DateOut]) - (1)), [DateOut])),
-    [DateOut]         DATETIME         NOT NULL,
-    [EmployeeID]      INT              NOT NULL,
-    [IsMainWorkPlace] BIT              NOT NULL,
-    [DepartmentUID]   UNIQUEIDENTIFIER NOT NULL,
-    [WorkShiftCD]     NVARCHAR (10)    NULL,
-    [WorkHours]       REAL             NULL,
-    [AbsenceCode]     VARCHAR (25)     NULL,
-    [PaymentType]     CHAR (2)         NULL,
-    CONSTRAINT [PK_WorkOut] PRIMARY KEY CLUSTERED ([WorkOutID] ASC)
-);
-
-
-GO
-PRINT N'Creating unnamed constraint on [dbo].[dejen]...';
-
-
-GO
-ALTER TABLE [dbo].[dejen]
-    ADD DEFAULT ((0)) FOR [flag];
-
-
-GO
-PRINT N'Creating [dbo].[flaga]...';
-
-
-GO
-ALTER TABLE [dbo].[dejen1]
-    ADD CONSTRAINT [flaga] DEFAULT ((0)) FOR [flag];
-
-
-GO
-PRINT N'Creating [dbo].[DF_SRCG_UnitBids_BidValue]...';
-
-
-GO
-ALTER TABLE [dbo].[SRCG_UnitBids]
-    ADD CONSTRAINT [DF_SRCG_UnitBids_BidValue] DEFAULT ((0)) FOR [BidValue];
-
-
-GO
-PRINT N'Creating unnamed constraint on [dbo].[WorkOut]...';
-
-
-GO
-ALTER TABLE [dbo].[WorkOut]
-    ADD DEFAULT ((1)) FOR [IsMainWorkPlace];
-
-
-GO
-PRINT N'Creating [dbo].[GetProjects]...';
-
-
-GO
-CREATE VIEW [dbo].[GetProjects]
-	AS SELECT * FROM dbo.Projects
-GO
-PRINT N'Creating [dbo].[newView]...';
-
-
-GO
-CREATE VIEW [dbo].[newView]
-AS
-SELECT    TimeSheetDate, EmployeeID, IsMainWorkPlace
-FROM         [dbo].[WorkOut]
 GO
 PRINT N'Update complete.';
 
