@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\Database1",
-    "\\Database1\\dbo"
+    "\\Database1\\dbo",
+    "\\Database1\\dbo\\Tables",
+    "\\Database1\\dbo\\Views"
   ],
-  "SelectedNode": "\\Database1",
+  "SelectedNode": "\\Database1\\dbo",
   "PreviewInSolutionExplorer": false
 }
