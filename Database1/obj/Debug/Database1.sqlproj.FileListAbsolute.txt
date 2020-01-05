@@ -6,3 +6,5 @@ C:\Users\Dejen\Source\Repos\customer\Database1\obj\Debug\postdeploy.sql
 C:\Users\Dejen\Source\Repos\customer\Database1\obj\Debug\predeploy.sql
 C:\Users\Dejen\Source\Repos\customer\Database1\obj\Debug\Database1.dll
 C:\Users\Dejen\Source\Repos\customer\Database1\obj\Debug\Database1.pdb
+C:\Users\Dejen\Source\Repos\customer\Database1\bin\Debug\Database1.dll
+C:\Users\Dejen\Source\Repos\customer\Database1\bin\Debug\Database1.pdb
